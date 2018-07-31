@@ -51,6 +51,8 @@
                              // 如果成功要跳转至首页, 将token保存到localStorage
                             console.log(res);
                             if (res.meta.status === 200) {
+                                //将token保存在本地
+                                localStorage.setItem('mytoken',res.data.token)
                                 this.$router.push({name:'Home'})
                             }else {
                                  // 如果失败，展示提示信息
