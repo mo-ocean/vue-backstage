@@ -53,6 +53,7 @@
                             if (res.meta.status === 200) {
                                 //将token保存在本地
                                 localStorage.setItem('mytoken',res.data.token)
+                                this.$store.commit('setUsername',res.data.username)
                                 this.$router.push({name:'Home'})
                             }else {
                                  // 如果失败，展示提示信息

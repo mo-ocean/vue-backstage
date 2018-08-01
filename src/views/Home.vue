@@ -4,34 +4,26 @@
             <el-aside width="auto">
                 <div class="logo"></div>
                 <el-menu
-                default-active="2"
+                
                 :collapse="isCollapse"
+                :router="true"
                 class="el-menu-admin"
                 @open="handleOpen"
                 @close="handleClose"
                 background-color="#545c64"
                 text-color="#fff"
                 active-text-color="#ffd04b">
-                <el-submenu index="1">
+                <el-submenu >
                     <template slot="title">
                     <i class="el-icon-location"></i>
                     <span>用户管理</span>
                     </template>
-                    <el-menu-item index="2">
+                    <el-menu-item index="/user">
                     <i class="el-icon-menu"></i>
                     <span slot="title">用户列表</span>
                     </el-menu-item>
                 </el-submenu>
-                <el-submenu index="1">
-                    <template slot="title">
-                    <i class="el-icon-location"></i>
-                    <span>用户管理</span>
-                    </template>
-                    <el-menu-item index="2">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">用户列表</span>
-                    </el-menu-item>
-                </el-submenu>
+               
                 </el-menu>
             </el-aside>
             <el-container>
@@ -41,7 +33,7 @@
             <div class="system-title">电商后台管理系统</div>
             <div>
                 <span class="welcome">
-                您好，大帅哥
+                您好，{{$store.state.username}}
                 </span>
                 <el-button type="text" @click="logout">退出</el-button>
             </div>
@@ -69,6 +61,10 @@
       },
       toggleCollapse() {
           this.isCollapse = !this.isCollapse
+      },
+      logout() {
+          localStorage.removeItem('mytoken')
+          this.$router.push({name:'Login'})
       }
     }
   }
