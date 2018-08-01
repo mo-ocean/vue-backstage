@@ -17,7 +17,7 @@
       <el-button slot="append" icon="el-icon-search" @click="initList"></el-button>
   </el-input>
 
-        <el-button type="success" plain @click="addDialogFormVisible=true">添加用户</el-button>
+        <el-button type="success" plain @click="dialogFormVisible=true">添加用户</el-button>
       </el-col>
     </el-row>
 
@@ -69,10 +69,30 @@
       :total="total">
     </el-pagination>
     </div>
+    <el-dialog title="添加用户" :visible.sync="dialogFormVisible">
+      <el-form :model="addForm"  label-width="80px" :rules="rules" ref="addUserForm">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="addForm.username" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+         <el-input v-model="addForm.password" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="addForm.email" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" prop="mobile">
+          <el-input v-model="addForm.mobile" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addUserSubmit()">确 定</el-button>
+      </div>
+</el-dialog>
   </div>
 </template>
 <script>
-import {getUserList,changeUserState} from "@/api"
+import {getUserList,changeUserState,addUser} from "@/api"
  export default {
      data() {
         return {
@@ -80,7 +100,30 @@ import {getUserList,changeUserState} from "@/api"
           query:'',
           total:0,
           pagesize:1,
-          pagenum:1
+          pagenum:1,
+          dialogFormVisible:false,
+           addForm: {
+            username: '',
+            password: '',
+            email: '',
+            mobile: ''
+          },
+           // 添加用户的表单验证
+          rules: {
+            username: [
+              { required: true, message: '请输入用户名', trigger: 'blur' }
+            ],
+            password: [
+              { required: true, message: '请输入密码', trigger: 'blur' }
+            ],
+            email: [
+              { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+              { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur,change' }
+            ],
+            mobile: [
+              { required: true, message: '电话不能为空' }
+            ]
+          }
          
         }
      },
@@ -133,7 +176,27 @@ import {getUserList,changeUserState} from "@/api"
               })
             }
           })
-
+        },
+        // 添加用户
+        addUserSubmit(formName) {
+          console.log(this.$refs);
+          
+          this.$refs.addUserForm.validate(valide =>{
+            if (valide) {
+              addUser(this.addForm).then(res =>{
+                console.log(res);
+                if (res.data.status === 201) {
+                    this.$message({
+                      message: '用户添加成功了哦',
+                      center: true,
+                      type: 'success'
+                  })
+                }
+                this.dialogFormVisible = false
+                this.initList()                
+              })
+            }
+          })
         }
     }
  }

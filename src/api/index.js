@@ -24,5 +24,9 @@ export const getUserList = params => {
     }
     // 更改用户状态
 export const changeUserState = params => {
-    return axios.put(`users/${params.uid}/state/${params.type}`, params).then(res => res.data)
+        return axios.put(`users/${params.uid}/state/${params.type}`, params).then(res => res.data)
+    }
+    // 添加用户
+export const addUser = params => {
+    return axios.post(`users`, params).then(res => res.data)
 }
