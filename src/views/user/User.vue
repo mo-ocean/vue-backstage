@@ -72,7 +72,7 @@
   </div>
 </template>
 <script>
-import {getUserList} from "@/api"
+import {getUserList,changeUserState} from "@/api"
  export default {
      data() {
         return {
@@ -111,6 +111,29 @@ import {getUserList} from "@/api"
                 this.userList = res.data.users
                 this.total = res.data.total
             })
+        },
+        // 改变用户状态
+        changeUserState(row) {
+          console.log(row)
+          changeUserState({
+            uid:row.id,
+            type:row.mg_state
+          }).then(res =>{
+            if (res.meta.status === 200) {
+              this.$message({
+                message: '成功了哦',
+                center: true,
+                type: 'success'
+              })
+            }else {
+              this.$message({
+                message: res.meta.msg,
+                center: true,
+                type: 'warning'
+              })
+            }
+          })
+
         }
     }
  }

@@ -20,5 +20,9 @@ axios.interceptors.request.use(config => {
     return Promise.reject(error)
 })
 export const getUserList = params => {
-    return axios.get('users', params).then(res => res.data)
+        return axios.get('users', params).then(res => res.data)
+    }
+    // 更改用户状态
+export const changeUserState = params => {
+    return axios.put(`users/${params.uid}/state/${params.type}`, params).then(res => res.data)
 }
