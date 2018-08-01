@@ -13,7 +13,7 @@
                 background-color="#545c64"
                 text-color="#fff"
                 active-text-color="#ffd04b">
-                <el-submenu >
+                <el-submenu index="1">
                     <template slot="title">
                     <i class="el-icon-location"></i>
                     <span>用户管理</span>

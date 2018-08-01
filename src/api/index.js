@@ -19,3 +19,6 @@ axios.interceptors.request.use(config => {
     // Do something with request error
     return Promise.reject(error)
 })
+export const getUserList = params => {
+    return axios.get('users', params).then(res => res.data)
+}
