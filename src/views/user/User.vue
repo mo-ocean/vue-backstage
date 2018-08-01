@@ -13,8 +13,8 @@
     <el-row>
       <el-col :span="24" >
         <!-- 给组件绑定原生事件的话，需要一个.native的修饰符 -->
-      <el-input placeholder="请输入内容" v-model="input5"  class="search-input">
-      <el-button slot="append" icon="el-icon-search"></el-button>
+      <el-input placeholder="请输入内容" v-model="query"  class="search-input" @keydown.native.enter="initList">
+      <el-button slot="append" icon="el-icon-search" @click="initList"></el-button>
   </el-input>
 
         <el-button type="success" plain @click="addDialogFormVisible=true">添加用户</el-button>
@@ -62,11 +62,11 @@
         <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-      :current-page="1"
-      :page-sizes="[100, 200, 300, 400]"
-      :page-size="100"
+      :current-page="pagenum"
+      :page-sizes="[1, 2, 3, 4]"
+      :page-size="1"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="400">
+      :total="total">
     </el-pagination>
     </div>
   </div>
@@ -76,8 +76,12 @@ import {getUserList} from "@/api"
  export default {
      data() {
         return {
-          input5: '',
-          userList: []
+          userList: [],
+          query:'',
+          total:0,
+          pagesize:1,
+          pagenum:1
+         
         }
      },
      created() {
@@ -86,20 +90,26 @@ import {getUserList} from "@/api"
     methods: {
         handleSizeChange(val) {
             console.log(`每页 ${val} 条`);
+            this.pagesize = val
+            this.initList()
         },
         handleCurrentChange(val) {
             console.log(`当前页: ${val}`);
+            this.pagenum = val
+            this.initList()
+
         },
         initList (){
             getUserList({
               params: {
-                query: "",
-                pagenum: "1",
-                pagesize: "5"
+                query:this.query,
+                pagenum: this.pagenum,
+                pagesize: this.pagesize
               }
             }).then(res => {
                 console.log(res)
                 this.userList = res.data.users
+                this.total = res.data.total
             })
         }
     }
