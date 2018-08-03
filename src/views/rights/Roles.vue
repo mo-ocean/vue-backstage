@@ -18,19 +18,19 @@
       <template slot-scope="scope">
         <el-row v-for="firstChildren in scope.row.children" :key="firstChildren.id">
             <el-col :span="4">
-                <el-tag closable>{{firstChildren.authName}}</el-tag>
+                <el-tag closable @close="deleteRight(scope.row,firstChildren.id)">{{firstChildren.authName}}</el-tag>
             </el-col>
             <el-col :span="20">
                 <el-row  v-for="secondChildren in firstChildren.children" :key="secondChildren.id">
                     <el-col :span="4">
-                         <el-tag closable type="success">{{secondChildren.authName}}</el-tag>
+                         <el-tag closable type="success"  @close="deleteRight(scope.row,secondChildren.id)">{{secondChildren.authName}}</el-tag>
                     </el-col>
                     <el-col :span="20">
                         <el-row >
                             <el-tag closable 
                             v-for="thirdChildren in secondChildren.children" 
                             :key="thirdChildren.id"
-                            type="warning">
+                            type="warning"  @close="deleteRight(scope.row,thirdChildren.id)">
                                 {{thirdChildren.authName}}
                             </el-tag>
                         </el-row>
@@ -38,6 +38,9 @@
                 </el-row>
             </el-col>
         </el-row>
+            <el-row v-if="scope.row.children.length === 0">
+                <el-col :span="24">该角色没有分配权限，请前往分配！</el-col>
+            </el-row>
       </template>
     </el-table-column>
     <el-table-column
@@ -61,7 +64,7 @@
     </div>    
 </template>
 <script>
-import { getRoleList } from "@/api";
+import { getRoleList,deleteRoleRight } from "@/api";
    export default {
     data() {
       return {
@@ -78,6 +81,20 @@ import { getRoleList } from "@/api";
                 if (res.meta.status === 200) {
                 console.log(res)
                 this.roleList = res.data
+                }
+            })
+        },
+        deleteRight(row,rightId) {
+            deleteRoleRight({roleId:row.id,rightId:rightId}).then(res => {
+                if (res.meta,status === 200) {
+                    console.log(res.data);
+                    
+                    row.children = res.data
+                }else {
+                     this.$message({
+                        type: 'error',
+                        message: res.meta.msg
+                    })
                 }
             })
         }
