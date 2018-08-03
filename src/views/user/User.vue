@@ -106,10 +106,35 @@
         <el-button type="primary" @click="editUserSubmit('editUserForm')">确 定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog title="分配角色" :visible.sync="grantdialogFormVisible">
+      <el-form :model="grantForm"  label-width="120px" >
+        <el-form-item label="当前用户" prop="username" >
+          <el-tag>{{grantForm.username}}</el-tag>
+        </el-form-item>
+        <el-form-item label="选择角色：">
+          <el-select v-model="roleId" placeholder="选择角色">
+            <el-option 
+            v-for="(role,index) in roleList"
+            :key="index"
+            :label="role.roleName" 
+            :value="role.id">
+             
+            </el-option>
+            
+          </el-select>
+        </el-form-item>
+
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="grantUserSubmit()">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
-import {getUserList,changeUserState,addUser,queryUserId,editUser,delUser} from "@/api"
+import {getUserList,changeUserState,addUser,queryUserId,editUser,delUser,getRoleList,grantUserRole} from "@/api"
  export default {
      data() {
         return {
@@ -132,6 +157,12 @@ import {getUserList,changeUserState,addUser,queryUserId,editUser,delUser} from "
             id:0
           },
           editdialogFormVisible:false,
+          grantdialogFormVisible:false,
+          grantForm:{
+            username:"",
+          },
+          roleList:'',
+          roleId:'',
            // 添加用户的表单验证
           rules: {
             username: [
@@ -280,6 +311,42 @@ import {getUserList,changeUserState,addUser,queryUserId,editUser,delUser} from "
               message: '已取消删除'
             })
           })
+        },
+        // 选择角色
+        showGrantDialog(row) {
+          this.grantForm = row
+          this.grantdialogFormVisible = true
+          getRoleList().then(res=>{
+            console.log(res);
+            
+            if (res.meta.status === 200) {
+              this.roleList = res.data
+            }
+          })
+        },
+        //分配角色
+        grantUserSubmit() {
+          if (!this.roleId) {
+            this.$message({
+              type:'warning',
+              message:'角色不能为空'
+            })
+          }else {
+            grantUserRole({id:this.grantForm.id, rid:this.roleId}).then(res=>{
+              if (res.meta.status === 200) {
+                this.$message({
+                  type: 'success',
+                  message: '设置角色成功'
+                })
+                 this.grantdialogFormVisible = false
+              }else {
+                 this.$message({
+                  type: 'error',
+                  message: res.meta.msg
+                })
+              }
+            }) 
+          }
         }
     }
  }
