@@ -57,18 +57,43 @@
       <template slot-scope="scope">
           <el-button size="mini" type="primary" plain icon="el-icon-edit"></el-button>
           <el-button size="mini" type="danger" plain icon="el-icon-delete"></el-button>
-          <el-button size="mini" type="warning" plain icon="el-icon-check" title="授权角色" ></el-button>
+          <el-button size="mini" type="warning" plain icon="el-icon-check" title="授权角色" @click="showDialog(scope.row)"></el-button>
         </template>
     </el-table-column>
+    
   </el-table>
+        <el-dialog title="授权角色" :visible.sync="dialogFormVisible">
+            <div class="tree-container">
+                <el-tree
+                :data="rightList"
+                show-checkbox
+                ref="tree"
+                node-key="id"
+                :default-expand-all="true"
+                :default-checked-keys="selectedRights"
+                :props="defaultProps">
+                </el-tree>
+            </div>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="primary">确 定</el-button>
+            </div>
+        </el-dialog>
     </div>    
 </template>
 <script>
-import { getRoleList,deleteRoleRight } from "@/api";
+import { getRoleList,deleteRoleRight,getRightList } from "@/api";
    export default {
     data() {
       return {
-        roleList: []
+        roleList: [],
+        rightList:[],
+        dialogFormVisible:false,
+        defaultProps: {
+            children: 'children',
+            label: 'authName'
+        },
+         selectedRights: []
 
       }
     },
@@ -97,7 +122,23 @@ import { getRoleList,deleteRoleRight } from "@/api";
                     })
                 }
             })
+        },
+        showDialog(row) {
+           
+            this.dialogFormVisible = true
+             getRightList({type:'tree'}).then(res => {
+                  if (res.meta.status === 200) {
+                    console.log(res.data)
+                    this.rightList = res.data
+                    } else {
+                    this.$message({
+                        type: 'error',
+                        message: res.meta.msg
+                    })
+                }
+             })
         }
+        
     }
   }
 </script>
