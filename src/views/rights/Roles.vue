@@ -16,7 +16,28 @@
     style="width: 100%">
     <el-table-column type="expand">
       <template slot-scope="scope">
-          <div>haha</div>
+        <el-row v-for="firstChildren in scope.row.children" :key="firstChildren.id">
+            <el-col :span="4">
+                <el-tag closable>{{firstChildren.authName}}</el-tag>
+            </el-col>
+            <el-col :span="20">
+                <el-row  v-for="secondChildren in firstChildren.children" :key="secondChildren.id">
+                    <el-col :span="4">
+                         <el-tag closable type="success">{{secondChildren.authName}}</el-tag>
+                    </el-col>
+                    <el-col :span="20">
+                        <el-row >
+                            <el-tag closable 
+                            v-for="thirdChildren in secondChildren.children" 
+                            :key="thirdChildren.id"
+                            type="warning">
+                                {{thirdChildren.authName}}
+                            </el-tag>
+                        </el-row>
+                    </el-col>
+                </el-row>
+            </el-col>
+        </el-row>
       </template>
     </el-table-column>
     <el-table-column
@@ -75,6 +96,10 @@ import { getRoleList } from "@/api";
     margin-right: 0;
     margin-bottom: 0;
     width: 50%;
+  }
+  .el-tag {
+    margin-right: 5px;
+    margin-bottom: 5px;
   }
 </style>
 
