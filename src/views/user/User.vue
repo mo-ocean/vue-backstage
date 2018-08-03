@@ -138,6 +138,7 @@ import {getUserList,changeUserState,addUser,queryUserId,editUser,delUser,getRole
  export default {
      data() {
         return {
+          loading:true,
           userList: [],
           query:'',
           total:0,
@@ -208,6 +209,7 @@ import {getUserList,changeUserState,addUser,queryUserId,editUser,delUser,getRole
                 console.log(res)
                 this.userList = res.data.users
                 this.total = res.data.total
+                this.loading = false
             })
         },
         // 改变用户状态
