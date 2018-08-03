@@ -76,13 +76,13 @@
             </div>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="primary">确 定</el-button>
+                <el-button type="primary" @click="getCheckedNodes">确 定</el-button>
             </div>
         </el-dialog>
     </div>    
 </template>
 <script>
-import { getRoleList,deleteRoleRight,getRightList } from "@/api";
+import { getRoleList,deleteRoleRight,getRightList,grantRoleRight } from "@/api";
    export default {
     data() {
       return {
@@ -93,8 +93,8 @@ import { getRoleList,deleteRoleRight,getRightList } from "@/api";
             children: 'children',
             label: 'authName'
         },
-         selectedRights: []
-
+        selectedRights: [],//保存默认选中的权限id
+        currentRole:{}//保存当前被点击的角色
       }
     },
     created () {
@@ -124,19 +124,62 @@ import { getRoleList,deleteRoleRight,getRightList } from "@/api";
             })
         },
         showDialog(row) {
-           
             this.dialogFormVisible = true
-             getRightList({type:'tree'}).then(res => {
-                  if (res.meta.status === 200) {
-                    console.log(res.data)
-                    this.rightList = res.data
-                    } else {
-                    this.$message({
-                        type: 'error',
-                        message: res.meta.msg
-                    })
+            this.currentRole = row
+            getRightList({type:'tree'}).then(res => {
+                if (res.meta.status === 200) {
+                console.log(res.data)
+                this.rightList = res.data
+                } else {
+                this.$message({
+                    type: 'error',
+                    message: res.meta.msg
+                })
+            }
+            })
+            // 默认选中
+            //遍历之前先让数组清空
+            this.selectedRights.length = 0
+            //将当前被点击角色的所有权限id取出来，放到selectedRights中
+            this.currentRole.children.forEach(first => {
+                if (first.children && first.children.length !== 0) {
+                    first.children.forEach(second => {
+                        if (second.children && second.children.length !== 0) {
+                            second.children.forEach(third => {
+                                this.selectedRights.push(third.id)
+                            })
+                        }
+                    }) 
                 }
-             })
+            })
+
+        },
+        //提交授权
+        getCheckedNodes() {
+            let nodeArr = this.$refs.tree.getCheckedNodes()
+            console.log(nodeArr);
+            let rids=[]
+            nodeArr.forEach(item => {
+                rids.push(item.id + ',' + item.pid)
+            })
+             console.log(rids);
+            console.log(rids.join(','))
+            let newArr = rids.join(',').split(',')
+
+            //es6数组去重 new Set(new Arr)
+            let idArr = [...new Set(newArr)]
+            console.log(idArr);
+            grantRoleRight(this.currentRole.id,{rids:idArr.join(',')}).then(res => {
+
+                if (res.meta.status === 200) {
+                    this.$message({
+                        type:"success",
+                        message:res.meta.msg
+                    })
+                    this.dialogFormVisible = false
+                    this.initList()
+                }
+            })
         }
         
     }
@@ -158,6 +201,10 @@ import { getRoleList,deleteRoleRight,getRightList } from "@/api";
   .el-tag {
     margin-right: 5px;
     margin-bottom: 5px;
+  }
+   .tree-container {
+    height: 300px;
+    overflow: auto;
   }
 </style>
 
