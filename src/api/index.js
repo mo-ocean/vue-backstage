@@ -28,5 +28,17 @@ export const changeUserState = params => {
     }
     // 添加用户
 export const addUser = params => {
-    return axios.post(`users`, params).then(res => res.data)
+        return axios.post(`users`, params).then(res => res.data)
+    }
+    // 根据ID查询用户信息
+export const queryUserId = params => {
+        return axios.get(`users/${params}`, params).then(res => res.data)
+    }
+    // 编辑用户提交
+export const editUser = params => {
+        return axios.put(`users/${params.id}`, params).then(res => res.data)
+    }
+    // 删除单个用户
+export const delUser = params => {
+    return axios.delete(`users/${params}`, params).then(res => res.data)
 }

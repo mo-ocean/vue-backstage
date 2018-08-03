@@ -63,8 +63,8 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="pagenum"
-      :page-sizes="[1, 2, 3, 4]"
-      :page-size="1"
+      :page-sizes="[10, 20, 30, 40]"
+      :page-size="10"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
@@ -88,40 +88,64 @@
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="addUserSubmit()">确 定</el-button>
       </div>
-</el-dialog>
+    </el-dialog>
+    <el-dialog title="编辑用户" :visible.sync="editdialogFormVisible">
+      <el-form :model="editForm"  label-width="80px" :rules="rules" ref="editUserForm">
+        <el-form-item label="用户名" prop="username" :disabled="true">
+          <el-input v-model="editForm.username" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editForm.email" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" prop="mobile">
+          <el-input v-model="editForm.mobile" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editUserSubmit('editUserForm')">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
-import {getUserList,changeUserState,addUser} from "@/api"
+import {getUserList,changeUserState,addUser,queryUserId,editUser,delUser} from "@/api"
  export default {
      data() {
         return {
           userList: [],
           query:'',
           total:0,
-          pagesize:1,
+          pagesize:10,
           pagenum:1,
           dialogFormVisible:false,
-           addForm: {
+          addForm: {
             username: '',
             password: '',
             email: '',
             mobile: ''
           },
+          editForm: {
+            username: '',
+            email: '',
+            mobile: '',
+            id:0
+          },
+          editdialogFormVisible:false,
            // 添加用户的表单验证
           rules: {
             username: [
-              { required: true, message: '请输入用户名', trigger: 'blur' }
-            ],
+                { required: true, message: '请输入用户名', trigger: 'blur' }
+            ],  
             password: [
-              { required: true, message: '请输入密码', trigger: 'blur' }
+                { required: true, message: '请输入密码', trigger: 'blur' }
             ],
             email: [
-              { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-              { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur,change' }
+                { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+                { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur,change' }
             ],
             mobile: [
-              { required: true, message: '电话不能为空' }
+                { required: true, message: '电话不能为空' }
             ]
           }
          
@@ -157,7 +181,7 @@ import {getUserList,changeUserState,addUser} from "@/api"
         },
         // 改变用户状态
         changeUserState(row) {
-          console.log(row)
+          // console.log(row)
           changeUserState({
             uid:row.id,
             type:row.mg_state
@@ -178,13 +202,13 @@ import {getUserList,changeUserState,addUser} from "@/api"
           })
         },
         // 添加用户
-        addUserSubmit(formName) {
-          console.log(this.$refs);
+        addUserSubmit() {
+          // console.log(this.$refs);
           
           this.$refs.addUserForm.validate(valide =>{
             if (valide) {
               addUser(this.addForm).then(res =>{
-                console.log(res);
+                // console.log(res);
                 if (res.data.status === 201) {
                     this.$message({
                       message: '用户添加成功了哦',
@@ -196,6 +220,65 @@ import {getUserList,changeUserState,addUser} from "@/api"
                 this.initList()                
               })
             }
+          })
+        },
+        //编辑用户
+        // 显示编辑用户对话框
+        showEditDialog(row) {
+          this.editdialogFormVisible = true
+          queryUserId(row.id).then(res=>{
+            if (res.meta.status === 200) {
+              this.editForm.username = res.data.username
+              this.editForm.email = res.data.email
+              this.editForm.mobile = res.data.mobile
+              this.editForm.id = res.data.id
+            }
+          })
+        },
+        editUserSubmit() {
+          console.log( this.editForm);
+          
+          this.$refs.editUserForm.validate(vilide => {
+            if (vilide) {
+              editUser(this.editForm).then(res=>{
+                if (res.meta.status === 200) {
+                 
+                    this.$message({
+                      message: '用户编辑成功了哦',
+                      center: true,
+                      type: 'success'
+                    })
+                  
+                  this.editdialogFormVisible = false
+                  
+                  this.initList()
+                }
+              })
+            }
+          })
+        },
+         // 显示删除对话框
+        showDeleteDialog (row) {
+          this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            // 执行删除用户操作
+            delUser(row.id).then(res => {
+              if (res.meta.status === 200) {
+                this.$message({
+                  type: 'success',
+                  message: '删除成功!'
+                })
+                this.initList()
+              }
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
           })
         }
     }
