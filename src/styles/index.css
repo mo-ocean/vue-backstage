@@ -16,6 +16,10 @@
     zoom: 1;
 }
 
+.mt-20 {
+    margin-top: 20px;
+}
+
 a,
 a:focus,
 a:hover {

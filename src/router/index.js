@@ -4,8 +4,9 @@ import Login from '@/views/Login'
 import Home from '@/views/Home'
 import Welcome from '@/views/Welcome/Welcome'
 import User from '@/views/user/User'
-import Roles from '@/views/rights/Roles'
 import Rights from '@/views/rights/Rights'
+import Roles from '@/views/rights/Roles'
+
 
 Vue.use(Router)
 
