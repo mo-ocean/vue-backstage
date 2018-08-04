@@ -60,5 +60,9 @@ export const deleteRoleRight = params => {
     }
     // 授权提交
 export const grantRoleRight = (roleId, rids) => {
-    return axios.post(`roles/${roleId}/rights`, rids).then(res => res.data)
+        return axios.post(`roles/${roleId}/rights`, rids).then(res => res.data)
+    }
+    // 左侧 菜单权限
+export const getMenus = () => {
+    return axios.get(`menus`).then(res => res.data)
 }
