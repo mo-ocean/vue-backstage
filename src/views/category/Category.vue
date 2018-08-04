@@ -33,15 +33,35 @@
                 :total="total">
             </el-pagination>
         </div>
-
+          <!-- 添加分类对话框 -->
+        <el-dialog title="添加分类" :visible.sync="addDialogFormVisible">
+            <el-form :model="addForm" label-width="80px" :rules="rules" ref="addCateForm">
+                <el-form-item label="分类名称" prop="cat_name">
+                <el-input v-model="addForm.cat_name" auto-complete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="父级名称">
+                <el-cascader
+                    :options="options"
+                    v-model="selectedOptions"
+                    :props="props"
+                    @change="handleChange">
+                </el-cascader>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="addDialogFormVisible = false">取 消</el-button>
+                <el-button type="primary" @click="addCateSubmit('addCateForm')">确 定</el-button>
+            </div>
+        </el-dialog>
     </div>    
 </template>
 <script>
 import TreeGrid from '@/components/TreeGrid/TreeGrid'
-import { getCategories } from "@/api";
+import { getCategories,addCategories } from "@/api";
     export default {
         data () {
             return {
+                addDialogFormVisible:false,
                 dataSource: [],
                 columns: [{
                 text: '分类名称',
@@ -59,7 +79,23 @@ import { getCategories } from "@/api";
                 total: 0,
                 dataSource: [],
                 pagesize:10,
-                pagenum:1
+                pagenum:1,
+                addForm:{
+                    cat_name: '',
+                    cat_pid: 0,
+                    cat_level: 0
+                },
+                options: [], // 级联选择器的数据源
+                selectedOptions:[],// 级联选择器选中后的数据
+                 rules: {
+                    cat_name: [
+                    { required: true, message: '请输入分类名称', trigger: 'blur' }
+                    ]
+                },
+                props: {
+                    value: 'cat_id',
+                    label: 'cat_name'
+                }
             }
         },
         components:{
@@ -88,13 +124,50 @@ import { getCategories } from "@/api";
             initList() {
                 getCategories({type: '3', pagenum: this.pagenum, pagesize: this.pagesize}).then(res=>{
                     if (res.meta.status === 200) {
+                        console.log(res);
+                        
                         this.total = res.data.total
                         this.dataSource = res.data.result
                     }
                 })
             },
             addCategory() {
-
+                this.addDialogFormVisible = true
+                getCategories({type:'2'}).then(res => {
+                    console.log(res);
+                    if (res.meta.status === 200) {
+                        this.options = res.data
+                    }
+                })
+            },
+            addCateSubmit() {
+                this.$refs.addCateForm.validate(valide => {
+                    if (valide) {
+                        if (this.selectedOptions.length === 0) {
+                            this.addForm.cat_pid = 0
+                            this.addForm.cat_level = 0
+                        }else if (this.selectedOptions.length === 1) {
+                            this.addForm.cat_pid = this.selectedOptions[0]
+                            this.addForm.cat_level = 1
+                        }else {
+                            this.addForm.cat_pid = this.selectedOptions[1]
+                            this.addForm.cat_level = 2
+                        }
+                    }
+                }),
+                addCategories(this.addForm).then(res => {
+                    if (res.meta.status === 201) {
+                        this.addDialogFormVisible = false
+                        this.initList()
+                        this.$message({
+                            type: 'success',
+                            message: res.meta.msg
+                        })
+                    }
+                })
+            },
+           handleChange (value) {
+            console.log(value)
             }
         }
     }
