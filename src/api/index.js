@@ -64,5 +64,11 @@ export const grantRoleRight = (roleId, rids) => {
     }
     // 左侧 菜单权限
 export const getMenus = () => {
-    return axios.get(`menus`).then(res => res.data)
+        return axios.get(`menus`).then(res => res.data)
+    }
+    // 获取商品分类信息
+export const getCategories = (params) => {
+    return axios.get('categories', {
+        params: params
+    }).then(res => res.data)
 }
